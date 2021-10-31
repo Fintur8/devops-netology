@@ -1,16 +1,28 @@
 # 1. Какой системный вызов делает команда cd?
 
->ioctl(2, TIOCGPGRP, [5097])             = 0
->rt_sigaction(SIGCHLD, {sa_handler=0x561ce89ffaa0, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f1c0a37e210}, {sa_handler=SIG_DFL, sa_mask=[], >sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f1c0a37e210}, 8) = 0
->prlimit64(0, RLIMIT_NPROC, NULL, {rlim_cur=3707, rlim_max=3707}) = 0
->rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
->rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
->stat("/tmp", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=4096, ...}) = 0
->chdir("/tmp")                           = 0
->rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
->rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
->exit_group(0)                           = ?
->+++ exited with 0 +++
+ioctl(2, TIOCGPGRP, [5097])             = 0
+
+rt_sigaction(SIGCHLD, {sa_handler=0x561ce89ffaa0, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f1c0a37e210}, {sa_handler=SIG_DFL, sa_mask=[]
+
+sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f1c0a37e210}, 8) = 0
+
+prlimit64(0, RLIMIT_NPROC, NULL, {rlim_cur=3707, rlim_max=3707}) = 0
+
+rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
+
+rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
+
+stat("/tmp", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=4096, ...}) = 0
+
+chdir("/tmp")                           = 0
+
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+
+exit_group(0)                           = ?
+
++++ exited with 0 +++
 
 
 # 2.Попробуйте использовать команду file на объекты разных типов на файловой системе. Например: 
