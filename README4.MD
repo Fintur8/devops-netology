@@ -86,7 +86,14 @@ Paths: (23 available, best #22, table default)
  
 
 # 2. Создайте dummy0 интерфейс в Ubuntu. Добавьте несколько статических маршрутов. Проверьте таблицу маршрутизации.  
-  
+vagrant@vagrant:~$ sudo nano /etc/network/interfaces   
+
+auto dummy0   
+iface dummy0 inet static   
+    address 10.2.2.2/32   
+    pre-up ip link add dummy0 type dummy   
+    post-down ip link del dummy0   
+   
 vagrant@vagrant:~$ ip a  
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000  
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00  
