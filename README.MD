@@ -1,6 +1,80 @@
+## Домашнее задание к занятию 5.4.
 
-# Домашнее задание к занятию "5.3. Введение. Экосистема. Архитектура. Жизненный цикл Docker контейнера"
-<details><summary>Домашнее задание к занятию 5.3.</summary>
+<details><summary>Задачи</summary>
+
+## Задача 1
+<details><summary>Раскрой меня</summary>
+Создать собственный образ операционной системы с помощью Packer.
+
+Для получения зачета, вам необходимо предоставить:
+- Скриншот страницы, как на слайде из презентации (слайд 37).
+</details> 
+<details><summary>Ответ</summary>
+<p align="center">
+  <img width="1200" height="600" src="https://user-images.githubusercontent.com/72273619/153776253-18560d80-22eb-4f56-af80-a4afbf3a53e0.JPG">
+</p>
+<p align="center">
+  <img width="1200" height="600" src="https://user-images.githubusercontent.com/72273619/153776371-be48ecfe-0da8-4190-ad03-d35b189c9c5a.JPG">
+</p>
+</details> 	
+	
+## Задача 2
+	
+<details><summary>Раскрой меня</summary>
+Создать вашу первую виртуальную машину в Яндекс.Облаке.
+
+Для получения зачета, вам необходимо предоставить:
+- Скриншот страницы свойств созданной ВМ, как на примере ниже:
+
+<p align="center">
+  <img width="1200" height="600" src="https://user-images.githubusercontent.com/72273619/153776349-16e870ff-077d-4443-995c-2bd8a5d1fce6.JPG">
+</p>
+</details>
+
+<details><summary>Ответ</summary>
+<p align="center">
+  <img width="1200" height="600" src="https://user-images.githubusercontent.com/72273619/153776401-1c16dc53-0caf-4ae9-95f2-9cec4c01cbae.JPG">
+</p>
+</details> 
+	
+## Задача 3
+	
+<details><summary>Раскрой меня</summary>
+Создать ваш первый готовый к боевой эксплуатации компонент мониторинга, состоящий из стека микросервисов.
+
+Для получения зачета, вам необходимо предоставить:
+- Скриншот работающего веб-интерфейса Grafana с текущими метриками, как на примере ниже
+<p align="center">
+  <img width="1200" height="600" src="./assets/yc_02.png">
+</p>
+</details> 
+	
+<details><summary>Ответ</summary>
+<p align="center">
+  <img width="1200" height="600" src="https://user-images.githubusercontent.com/72273619/153776558-6c1183be-fd76-46c3-bec5-6312e080a52d.JPG">
+</p>
+</details>
+	
+## Задача 4 (*)
+	
+<details><summary>Раскрой меня</summary>
+Создать вторую ВМ и подключить её к мониторингу развёрнутому на первом сервере.
+
+Для получения зачета, вам необходимо предоставить:
+- Скриншот из Grafana, на котором будут отображаться метрики добавленного вами сервера.
+</details> 
+	
+<details><summary>Ответ</summary>
+<p align="center">
+  <img width="1200" height="600" src="https://user-images.githubusercontent.com/72273619/153776616-48924434-0c7a-4fa7-ba4d-feffa67b787a.JPG">
+</p>
+	
+</details>
+	
+</details> 
+
+## Домашнее задание к занятию 5.3
+<details><summary>Задачи</summary>
  
 ## Задача 1
  
