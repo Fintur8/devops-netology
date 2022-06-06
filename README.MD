@@ -1,3 +1,365 @@
+## Домашнее задание к занятию 6.3.
+
+<details><summary>Задачи</summary>
+	
+## Задача 1
+	
+<details><summary>Раскрой меня</summary>
+
+Используя docker поднимите инстанс MySQL (версию 8). Данные БД сохраните в volume.
+
+Изучите [бэкап БД](https://github.com/netology-code/virt-homeworks/tree/master/06-db-03-mysql/test_data) и 
+восстановитесь из него.
+
+Перейдите в управляющую консоль `mysql` внутри контейнера.
+
+Используя команду `\h` получите список управляющих команд.
+
+Найдите команду для выдачи статуса БД и **приведите в ответе** из ее вывода версию сервера БД.
+
+Подключитесь к восстановленной БД и получите список таблиц из этой БД.
+
+**Приведите в ответе** количество записей с `price` > 300.
+
+В следующих заданиях мы будем продолжать работу с данным контейнером.
+	
+</details> 
+	
+<details><summary>Ответ</summary>
+	
+	docker-compose.yml
+	version: '3'
+	services:
+	  db:
+	    container_name: mysql_db
+	    image: 'mysql:8'
+	    restart: unless-stopped
+	    ports:
+	     - 3306:3306
+	    environment:
+		MYSQL_DATABASE: test_db
+		MYSQL_ROOT_PASSWORD: test_db
+		SERVICE_TAGS: dev
+		SERVICE_NAME: mysql
+	    volumes:
+		- /home/alex/mysql/db_data/:/var/lib/mysql
+
+
+	alex@testfin:~/mysql sudo docker-compose up -d
+
+	alex@testfin:~/mysql sudo docker ps
+	CONTAINER ID   IMAGE     COMMAND                  CREATED       STATUS       PORTS                                                  NAMES
+	3ae231a01ae1   mysql:8   "docker-entrypoint.s…"   2 hours ago   Up 2 hours   0.0.0.0:3306->3306/tcp, :::3306->3306/tcp, 33060/tcp   mysql_db
+
+	alex@testfin:~/mysql sudo docker exec -it 3ae231a01ae1 bash
+	
+	Для восстановления создал файл бэкапа в который поместил содержимое исходного файла.
+	
+	alex@testfin:~/mysql mysql test_db -uroot -p  < backup_db.sql
+
+	root@3ae231a01ae1:/# mysql test_db -uroot -p
+
+	mysql> \s
+	--------------
+	mysql  Ver 8.0.29 for Linux on x86_64 (MySQL Community Server - GPL)
+
+	Connection id:          15
+	Current database:       test_db
+	Current user:           root@localhost
+	SSL:                    Not in use
+	Current pager:          stdout
+	Using outfile:          ''
+	Using delimiter:        ;
+	Server version:         8.0.29 MySQL Community Server - GPL
+	Protocol version:       10
+	Connection:             Localhost via UNIX socket
+	Server characterset:    utf8mb4
+	Db     characterset:    utf8mb4
+	Client characterset:    latin1
+	Conn.  characterset:    latin1
+	UNIX socket:            /var/run/mysqld/mysqld.sock
+	Binary data as:         Hexadecimal
+	Uptime:                 1 hour 13 min 29 sec
+
+	Threads: 2  Questions: 69  Slow queries: 0  Opens: 160  Flush tables: 3  Open tables: 78  Queries per second avg: 0.015
+	--------------
+
+
+	mysql> select * from orders;
+	+----+-----------------------+-------+
+	| id | title                 | price |
+	+----+-----------------------+-------+
+	|  1 | War and Peace         |   100 |
+	|  2 | My little pony        |   500 |
+	|  3 | Adventure mysql times |   300 |
+	|  4 | Server gravity falls  |   300 |
+	|  5 | Log gossips           |   123 |
+	+----+-----------------------+-------+
+	5 rows in set (0.00 sec)
+
+	mysql>
+
+
+	mysql> select * from orders where price>300;
+	+----+----------------+-------+
+	| id | title          | price |
+	+----+----------------+-------+
+	|  2 | My little pony |   500 |
+	+----+----------------+-------+
+	1 row in set (0.00 sec)
+
+	mysql> select count(*) from orders where price>300;
+	+----------+
+	| count(*) |
+	+----------+
+	|        1 |
+	+----------+
+	1 row in set (0.00 sec)
+	
+</details>
+
+## Задача 2
+	
+<details><summary>Раскрой меня</summary>	
+
+Создайте пользователя test в БД c паролем test-pass, используя:
+- плагин авторизации mysql_native_password
+- срок истечения пароля - 180 дней 
+- количество попыток авторизации - 3 
+- максимальное количество запросов в час - 100
+- аттрибуты пользователя:
+    - Фамилия "Pretty"
+    - Имя "James"
+
+Предоставьте привелегии пользователю `test` на операции SELECT базы `test_db`.
+    
+Используя таблицу INFORMATION_SCHEMA.USER_ATTRIBUTES получите данные по пользователю `test` и 
+**приведите в ответе к задаче**.
+
+</details> 
+	
+<details><summary>Ответ</summary>
+	
+	CREATE USER 'test' IDENTIFIED WITH mysql_native_password BY 'test-pass'
+	 WITH MAX_QUERIES_PER_HOUR 100 
+	 PASSWORD EXPIRE INTERVAL 180 DAY 
+	 FAILED_LOGIN_ATTEMPTS 3
+	 ATTRIBUTE '{"Surname": "Pretty", "Name": "James"}';
+
+	GRANT SELECT ON test_db.* TO 'test';
+
+	FLUSH PRIVILEGES;
+
+	mysql> SELECT * FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE USER = 'test'
+	    -> ;
+	+------+------+----------------------------------------+
+	| USER | HOST | ATTRIBUTE                              |
+	+------+------+----------------------------------------+
+	| test | %    | {"Name": "James", "Surname": "Pretty"} |
+	+------+------+----------------------------------------+
+	1 row in set (0.00 sec)	
+	
+</details>	
+
+## Задача 3
+	
+<details><summary>Раскрой меня</summary>	
+
+Установите профилирование `SET profiling = 1`.
+Изучите вывод профилирования команд `SHOW PROFILES;`.
+
+Исследуйте, какой `engine` используется в таблице БД `test_db` и **приведите в ответе**.
+
+Измените `engine` и **приведите время выполнения и запрос на изменения из профайлера в ответе**:
+- на `MyISAM`
+- на `InnoDB`
+	
+</details> 
+	
+<details><summary>Ответ</summary>
+
+	mysql> SET profiling = 1;
+	Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+	У меня ничего не выводил полу включения , пришлось создать и удалить таблицу.
+
+	mysql> CREATE TABLE test1 (id INT);
+
+	mysql> DROP TABLE IF EXISTS test1;
+
+	mysql> SHOW PROFILES;
+
+	+----------+------------+-----------------------------+
+	| Query_ID | Duration   | Query                       |
+	+----------+------------+-----------------------------+
+	|        1 | 0.00022300 | SET profiling = 1           |
+	|        2 | 0.00022025 | SET profiling = 1           |
+	|        3 | 0.31361200 | DROP TABLE IF EXISTS t1     |
+	|        4 | 1.19806625 | CREATE TABLE T1 (id INT)    |
+	|        5 | 0.00057900 | show engines                |
+	|        6 | 0.30524475 | DROP TABLE IF EXISTS t1     |
+	|        7 | 1.05834200 | CREATE TABLE test1 (id INT) |
+	|        8 | 0.69094625 | DROP TABLE IF EXISTS test1  |
+	+----------+------------+-----------------------------+
+	8 rows in set, 1 warning (0.00 sec)
+
+	Команда показывает все выполненные запросы за сессию с временем выполнения.
+	На мой взгляд просто, удобно и можно узнать подробно на что тратилось время по каждому запросу.
+
+
+	mysql> show engines;
+	+--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
+	| Engine             | Support | Comment                                                        | Transactions | XA   | Savepoints |
+	+--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
+	| FEDERATED          | NO      | Federated MySQL storage engine                                 | NULL         | NULL | NULL       |
+	| MEMORY             | YES     | Hash based, stored in memory, useful for temporary tables      | NO           | NO   | NO         |
+	| InnoDB             | DEFAULT | Supports transactions, row-level locking, and foreign keys     | YES          | YES  | YES        |
+	| PERFORMANCE_SCHEMA | YES     | Performance Schema                                             | NO           | NO   | NO         |
+	| MyISAM             | YES     | MyISAM storage engine                                          | NO           | NO   | NO         |
+	| MRG_MYISAM         | YES     | Collection of identical MyISAM tables                          | NO           | NO   | NO         |
+	| BLACKHOLE          | YES     | /dev/null storage engine (anything you write to it disappears) | NO           | NO   | NO         |
+	| CSV                | YES     | CSV storage engine                                             | NO           | NO   | NO         |
+	| ARCHIVE            | YES     | Archive storage engine                                         | NO           | NO   | NO         |
+	+--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
+	9 rows in set (0.00 sec)
+
+
+	mysql> SELECT TABLE_NAME,ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'test_db' ORDER BY ENGINE asc;
+	+------------+--------+
+	| TABLE_NAME | ENGINE |
+	+------------+--------+
+	| T1         | InnoDB |
+	| orders     | InnoDB |
+	+------------+--------+
+	2 rows in set (0.00 sec)
+
+
+	ALTER TABLE orders engine=MyISAM;
+
+	16 | 1.48238000 | ALTER TABLE orders engine=MyISAM                                                                                                           
+
+	15 rows in set, 1 warning (0.00 sec)
+
+	mysql> SHOW PROFILE FOR QUERY 16;
+
+	+--------------------------------+----------+
+	| Status                         | Duration |
+	+--------------------------------+----------+
+	| starting                       | 0.000101 |
+	| Executing hook on transaction  | 0.000012 |
+	| starting                       | 0.000051 |
+	| checking permissions           | 0.000014 |
+	| checking permissions           | 0.000011 |
+	| init                           | 0.000021 |
+	| Opening tables                 | 0.000532 |
+	| setup                          | 0.000211 |
+	| creating table                 | 0.001985 |
+	| waiting for handler commit     | 0.000018 |
+	| waiting for handler commit     | 0.085639 |
+	| After create                   | 0.000896 |
+	| System lock                    | 0.000019 |
+	| copy to tmp table              | 0.000199 |
+	| waiting for handler commit     | 0.000024 |
+	| waiting for handler commit     | 0.000023 |
+	| waiting for handler commit     | 0.000061 |
+	| rename result table            | 0.000154 |
+	| waiting for handler commit     | 0.669057 |
+	| waiting for handler commit     | 0.000047 |
+	| waiting for handler commit     | 0.145316 |
+	| waiting for handler commit     | 0.000020 |
+	| waiting for handler commit     | 0.278835 |
+	| waiting for handler commit     | 0.000021 |
+	| waiting for handler commit     | 0.087258 |
+	| end                            | 0.134762 |
+	| query end                      | 0.076923 |
+	| closing tables                 | 0.000022 |
+	| waiting for handler commit     | 0.000042 |
+	| freeing items                  | 0.000045 |
+	| cleaning up                    | 0.000065 |
+	+--------------------------------+----------+
+	31 rows in set, 1 warning (0.01 sec)
+
+	ALTER TABLE orders engine=InnoDB;
+
+	17 | 1.40130450 | ALTER TABLE orders engine=InnoDB                                                                                                   
+	15 rows in set, 1 warning (0.00 sec)
+
+	mysql> SHOW PROFILE FOR QUERY 17;
+	+--------------------------------+----------+
+	| Status                         | Duration |
+	+--------------------------------+----------+
+	| starting                       | 0.000094 |
+	| Executing hook on transaction  | 0.000009 |
+	| starting                       | 0.000029 |
+	| checking permissions           | 0.000010 |
+	| checking permissions           | 0.000009 |
+	| init                           | 0.000034 |
+	| Opening tables                 | 0.000362 |
+	| setup                          | 0.000094 |
+	| creating table                 | 0.000158 |
+	| After create                   | 0.407147 |
+	| System lock                    | 0.000026 |
+	| copy to tmp table              | 0.000209 |
+	| rename result table            | 0.002119 |
+	| waiting for handler commit     | 0.000019 |
+	| waiting for handler commit     | 0.334613 |
+	| waiting for handler commit     | 0.000020 |
+	| waiting for handler commit     | 0.455778 |
+	| waiting for handler commit     | 0.000022 |
+	| waiting for handler commit     | 0.078955 |
+	| waiting for handler commit     | 0.000020 |
+	| waiting for handler commit     | 0.088075 |
+	| end                            | 0.000944 |
+	| query end                      | 0.032364 |
+	| closing tables                 | 0.000023 |
+	| waiting for handler commit     | 0.000053 |
+	| freeing items                  | 0.000042 |
+	| cleaning up                    | 0.000079 |
+	+--------------------------------+----------+
+	27 rows in set, 1 warning (0.00 sec)
+
+</details>	
+
+## Задача 4
+	
+<details><summary>Раскрой меня</summary>	
+
+Изучите файл `my.cnf` в директории /etc/mysql.
+
+Измените его согласно ТЗ (движок InnoDB):
+- Скорость IO важнее сохранности данных
+- Нужна компрессия таблиц для экономии места на диске
+- Размер буффера с незакомиченными транзакциями 1 Мб
+- Буффер кеширования 30% от ОЗУ
+- Размер файла логов операций 100 Мб
+
+Приведите в ответе измененный файл `my.cnf`.
+
+</details> 
+	
+<details><summary>Ответ</summary>
+
+	[mysqld]
+	pid-file        = /var/run/mysqld/mysqld.pid
+	socket          = /var/run/mysqld/mysqld.sock
+	datadir         = /var/lib/mysql
+	secure-file-priv= NULL
+
+	# Custom config should go here
+	!includedir /etc/mysql/conf.d/
+	default-storage-engine          =InnoDB
+	innodb_buffer_pool_size         =5734M
+	innodb_log_file_size            =100M
+	innodb_log_buffer_size          =1M
+	innodb_file_per_table           =enable
+	innodb_flush_method             =O_DIRECT
+	innodb_flush_log_at_trx_commit  =2
+	query_cache_size                =0
+
+</details>	
+	
+</details>
+
 ## Домашнее задание к занятию 6.2.
 
 <details><summary>Задачи</summary>
