@@ -1,3 +1,147 @@
+## Домашнее задание к занятию 6.4.
+
+<details><summary>Задачи</summary>
+
+## Задача 1
+	
+<details><summary>Раскрой меня</summary>
+
+Используя docker поднимите инстанс PostgreSQL (версию 13). Данные БД сохраните в volume.
+
+Подключитесь к БД PostgreSQL используя `psql`.
+
+Воспользуйтесь командой `\?` для вывода подсказки по имеющимся в `psql` управляющим командам.
+
+**Найдите и приведите** управляющие команды для:
+- вывода списка БД
+- подключения к БД
+- вывода списка таблиц
+- вывода описания содержимого таблиц
+- выхода из psql
+
+</details> 
+	
+<details><summary>Ответ</summary>
+
+	вывода списка БД  \l+
+	подключения к БД \c {[DBNAME|- USER|- HOST|- PORT|-] | conninfo}
+	вывода списка таблиц \dt[S+]
+	вывода описания содержимого таблиц \d[S+]  tableNAME 
+	выхода из psql \q
+
+</details> 
+
+## Задача 2
+	
+<details><summary>Раскрой меня</summary>
+	
+Используя `psql` создайте БД `test_database`.
+
+Изучите [бэкап БД](https://github.com/netology-code/virt-homeworks/tree/master/06-db-04-postgresql/test_data).
+
+Восстановите бэкап БД в `test_database`.
+
+Перейдите в управляющую консоль `psql` внутри контейнера.
+
+Подключитесь к восстановленной БД и проведите операцию ANALYZE для сбора статистики по таблице.
+
+Используя таблицу [pg_stats](https://postgrespro.ru/docs/postgresql/12/view-pg-stats), найдите столбец таблицы `orders` 
+с наибольшим средним значением размера элементов в байтах.
+
+**Приведите в ответе** команду, которую вы использовали для вычисления и полученный результат.
+	
+</details> 
+	
+<details><summary>Ответ</summary>
+
+	create database test_database;
+
+	create user postgres WITH PASSWORD 'postgres';
+
+	grant ALL ON DATABASE test_database TO postgres ;
+
+	psql test_database < test.sql
+
+	test_database=> ANALYZE VERBOSE orders;
+	INFO:  analyzing "public.orders"
+	INFO:  "orders": scanned 1 of 1 pages, containing 8 live rows and 0 dead rows; 8 rows in sample, 8 estimated total rows
+
+	select avg_width from pg_stats where tablename='orders';
+
+	test_database=> select avg_width from pg_stats where tablename='orders';
+	 avg_width
+	-----------
+		 4
+		16
+		 4
+	(3 rows)
+
+</details> 
+	
+## Задача 3
+	
+<details><summary>Раскрой меня</summary>
+	
+Архитектор и администратор БД выяснили, что ваша таблица orders разрослась до невиданных размеров и
+поиск по ней занимает долгое время. Вам, как успешному выпускнику курсов DevOps в нетологии предложили
+провести разбиение таблицы на 2 (шардировать на orders_1 - price>499 и orders_2 - price<=499).
+
+Предложите SQL-транзакцию для проведения данной операции.
+
+Можно ли было изначально исключить "ручное" разбиение при проектировании таблицы orders?
+											      
+</details> 
+	
+<details><summary>Ответ</summary>
+
+	первый подход : 
+	begin;
+	    alter table orders rename to orders_exp;
+	    create table orders ( id integer NOT NULL, title varchar(80) NOT NULL, price integer) partition by range(price);
+	    create table orders_1 partition of orders for values from (499) to (9999999);
+	    create table orders_2 partition of orders for values from (0) to (499);
+	    insert into orders (id, title, price) select * from orders_exp;
+	    drop table orders_exp;
+	commit;
+
+	второй подход :
+
+	begin;
+	    create table orders_inh ( id integer NOT NULL, title varchar(80) NOT NULL, price integer);
+	    create table orders_inh_1 ( check ( price > 499 )) INHERITS (orders_inh);
+	    create table orders_inh_2 ( check ( price <= 499 )) INHERITS (orders_inh);
+	    create rule insr_1 as on insert to orders_inh where ( price > 499 ) do instead insert into orders_inh_1 values (new.*);  	
+	    create rule insr_2 as on insert to orders_inh where ( price <= 499 ) do instead insert into orders_inh_2 values (new.*); 
+	    insert into orders_inh (id, title, price) select * from orders;
+	commit;
+
+	При изначальном проектировании таблиц можно было заложить такую возможность разбиения и выбрать подход (INHERITS или PARTITION).
+								     
+</details> 
+	
+## Задача 4
+	
+<details><summary>Раскрой меня</summary>
+	
+Используя утилиту `pg_dump` создайте бекап БД `test_database`.
+Как бы вы доработали бэкап-файл, чтобы добавить уникальность значения столбца `title` для таблиц `test_database`?
+
+</details> 
+	
+<details><summary>Ответ</summary>
+
+	pg_dump -U postgres -d test_database > test_database_dump.sql
+	
+[бэкап БД](Https://github.com/Fintur8/devops-netology/blob/0b93ff14868a72091ff5e241c198015110c0f817/test_database_dump.sql)
+	
+Для уникальности можно добавить индекс.
+	
+	
+</details> 
+	
+</details> 
+
+
 ## Домашнее задание к занятию 6.3.
 
 <details><summary>Задачи</summary>
