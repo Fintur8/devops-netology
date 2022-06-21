@@ -1,3 +1,53 @@
+## Домашнее задание к занятию 6.6.
+
+<details><summary>Задачи</summary>
+
+## Задача 1
+	
+<details><summary>Раскрой меня</summary>
+
+</details> 
+	
+<details><summary>Ответ</summary>
+
+
+</details> 
+
+## Задача 2
+	
+<details><summary>Раскрой меня</summary>
+
+</details> 
+	
+<details><summary>Ответ</summary>
+
+
+</details> 
+
+## Задача 3
+	
+<details><summary>Раскрой меня</summary>
+
+</details> 
+	
+<details><summary>Ответ</summary>
+
+
+</details> 
+
+## Задача 4
+	
+<details><summary>Раскрой меня</summary>
+
+</details> 
+	
+<details><summary>Ответ</summary>
+
+
+</details> 
+	
+</details> 
+
 ## Домашнее задание к занятию 6.5.
 
 <details><summary>Задачи</summary>
